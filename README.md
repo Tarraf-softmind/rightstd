@@ -31,6 +31,17 @@ python3 -I scripts/build-seed.py scripts/wp.json wp-export/uploads scripts/seed.
 cd pocketbase && rm -rf pb_data && ./pocketbase migrate up
 ```
 
+## Deploy (PocketBase Cloud)
+`pocketbase/pbc.json` pins PocketBase 0.40.6. The first time, create the instance from a backup of the local `pb_data` (content + images); after that, ship code and the built site with one command:
+```sh
+pbc login
+# first time only: backup zip of pb_data (server stopped, without backups/), then
+cd pocketbase && pbc pocketbase create <name> --backup ../backup.zip
+# every update (edit content locally or in the admin, then):
+../scripts/rebuild.sh && pbc pocketbase deploy
+```
+There is no Node or rsync on the instance, so saving content in its admin does **not** rebuild the site; rebuild and redeploy as above. Do not connect the GitHub repo for push deploys: `pb_public/` is gitignored and a deploy replaces it wholesale, which would publish an empty site.
+
 ## Deploy (VPS)
 Copy `pocketbase/` (including `pb_data`), `web/` and `scripts/` to the server, install Node 22 or newer and `rsync`, set `PB_URL=https://www.rightstd.com` in the service environment (the auto-rebuild reads content from it), and run:
 `./pocketbase serve rightstd.com www.rightstd.com --indexFallback=false` (it gets HTTPS for both from Let's Encrypt automatically; the bare domain 301s to www). Point DNS for `rightstd.com` and `www` at the server.

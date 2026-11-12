@@ -1,0 +1,9 @@
+{
+  "build": {
+    "pbPublic": "pb_public",
+    "pbHooks": "pb_hooks",
+    "pbMigrations": "pb_migrations"
+  },
+  "pocketbaseVersion": "0.40.6",
+  "defaultEnvironment": "production"
+}
