@@ -15,7 +15,7 @@ const gallery = await Promise.all(sv.gallery.map(async (g) => ({
   thumb: g, full: (await getImage({ src: fileUrl(sv, g), inferSize: true, width: 1400, format: "webp" })).src,
 })));
 ---
-<Layout title={title} description={description} image={fileUrl(sv, sv.image)} jsonld={[{
+<Layout title={title} description={description} jsonld={[{
   "@context": "https://schema.org", "@type": "Service", name: sv.title, description,
   provider: { "@id": Astro.site + "#org" }, areaServed: { "@type": "Country", name: "Saudi Arabia" },
   url: new URL(Astro.url.pathname, Astro.site).href,

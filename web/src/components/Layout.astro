@@ -2,19 +2,18 @@
 import "../styles/global.css";
 import Icon from "./Icon.astro";
 import { settings as getSettings, publicFile } from "../lib/pb.js";
-import { getImage, Font } from "astro:assets";
+import { Font } from "astro:assets";
 
 interface Props {
   title: string;              // full <title>
   description: string;
-  image?: string | null;      // absolute PocketBase URL for og:image
   jsonld?: object[];
   noindex?: boolean;      // 404 page
 }
-const { title, description, image, jsonld = [], noindex = false } = Astro.props;
+const { title, description, jsonld = [], noindex = false } = Astro.props;
 const s = await getSettings();
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const og = image ? new URL((await getImage({ src: image, width: 1200, inferSize: true, format: "jpeg" })).src, Astro.site).href : null;
+const og = new URL("/og.png", Astro.site).href; // logo card (public/og.png); regenerate if the logo changes
 const logo = publicFile(s, s.logo);
 const logoWhite = publicFile(s, s.logo_white);
 const pdf = publicFile(s, s.profile_pdf);
@@ -46,7 +45,10 @@ const org = {
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:locale" content="en_US" />
-  {og && <meta property="og:image" content={og} />}
+  <meta property="og:image" content={og} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content={s.site_name} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@RightSTD" />
   <Font cssVariable="--font-display" />

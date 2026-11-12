@@ -11,7 +11,7 @@ const [services, clients, showcase, s] = await Promise.all([list("services"), li
 const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
 const pdf = publicFile(s, s.profile_pdf);
 ---
-<Layout title={p.seo_title || s.site_name} description={p.seo_description} image={fileUrl(p, p.hero_image)}>
+<Layout title={p.seo_title || s.site_name} description={p.seo_description}>
   <section class="hero">
     <div class="container hero-grid">
       <div class="hero-copy">
