@@ -13,7 +13,7 @@ interface Props {
 const { title, description, jsonld = [], noindex = false } = Astro.props;
 const s = await getSettings();
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const og = new URL("/og.png", Astro.site).href; // logo card (public/og.png); regenerate if the logo changes
+const og = new URL("/og.png?v=1", Astro.site).href; // logo card (public/og.png); bump v when it changes so chat apps and the CDN refetch
 const logo = publicFile(s, s.logo);
 const logoWhite = publicFile(s, s.logo_white);
 const pdf = publicFile(s, s.profile_pdf);
