@@ -8,6 +8,7 @@ routerUse((e) => {
   } catch (err) {
     const path = e.request.url.path
     if (e.request.method !== "GET" || path.startsWith("/api/") || path.startsWith("/_/") || (err.status ?? err.value?.status) !== 404) throw err
-    return e.html(404, toString($os.readFile(__hooks + "/../pb_public/404.html")))
+    const page = /^\/ar(\/|$)/.test(path) ? "ar/404/index.html" : "404.html" // Arabic 404 under /ar/
+    return e.html(404, toString($os.readFile(__hooks + "/../pb_public/" + page)))
   }
 })

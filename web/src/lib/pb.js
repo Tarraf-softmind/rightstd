@@ -28,3 +28,14 @@ export const excerpt = (html, words = 10) => {
   const w = plain(html).split(" ");
   return w.length > words ? w.slice(0, words).join(" ") + "…" : w.join(" ");
 };
+
+/** Field in the page language: rec.title_ar on Arabic pages, falling back to the English field when it is empty. */
+export const tr = (rec, field, lang) => (lang === "ar" && rec[field + "_ar"]) || rec[field];
+
+/** Page section text: data_ar holds only the translated strings, laid over the English data (links, icons stay shared). */
+const merge = (base, over) => {
+  if (Array.isArray(base)) return base.map((b, i) => merge(b, over?.[i]));
+  if (base && typeof base === "object") return Object.fromEntries(Object.entries(base).map(([k, v]) => [k, merge(v, over?.[k])]));
+  return over || base;
+};
+export const trData = (rec, lang) => (lang === "ar" ? merge(rec.data, rec.data_ar) : rec.data);

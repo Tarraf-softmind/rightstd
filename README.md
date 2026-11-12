@@ -20,6 +20,7 @@ cd web && npm install && cd ../pocketbase
 
 ## Editing content
 Log in at `/_/`. The collections are **services**, **pages** (home, about, services, contact; their section text lives in `data`), **clients**, **showcase** (the home tabs) and **settings** (phone, email, socials, logos, profile PDF).
+**Arabic:** the site is bilingual. English is at `/`, Arabic at `/ar/` (same page structure, mirrored right-to-left), and a header link switches between them. Every translatable field has an Arabic twin ending in `_ar` (`title_ar`, `body_ar`, `seo_title_ar`, …). `data_ar` holds only the translated strings, in the same shape as `data`; links and icons come from `data`. An empty `_ar` field shows the English text, so a new service appears in Arabic once its `title_ar`/`body_ar` are filled. Fixed UI text (menu, buttons, form labels) lives in `web/src/lib/i18n.js`.
 Saving any record rebuilds the site in the background in about 5 seconds; the log is in `pocketbase/build.log`. A failed build leaves the live site unchanged.
 Contact-form messages are saved in **messages**. To have them emailed to the address in settings, set up SMTP in **Settings → Mail**.
 

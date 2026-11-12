@@ -1,0 +1,15 @@
+---
+import Layout from "./Layout.astro";
+import { ui, href, langOf } from "../lib/i18n.js";
+const lang = langOf(Astro.url);
+const t = ui[lang];
+---
+<Layout title={`${t.notFoundTitle} | ${t.titleSuffix}`} description={t.notFoundDesc} noindex>
+  <section class="section">
+    <div class="container center">
+      <h1>{t.notFoundH1}</h1>
+      <p>{t.notFoundText}</p>
+      <p><a class="btn" href={href(lang, "/")}>{t.backHome}</a> <a class="btn btn-outline" href={href(lang, "/services/")}>{t.ourServices}</a></p>
+    </div>
+  </section>
+</Layout>
