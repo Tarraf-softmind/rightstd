@@ -1,0 +1,47 @@
+---
+import { Image, getImage } from "astro:assets";
+import Layout from "../../components/Layout.astro";
+import PageBanner from "../../components/PageBanner.astro";
+import { list, fileUrl, plain } from "../../lib/pb.js";
+
+export async function getStaticPaths() {
+  const services = await list("services");
+  return services.map((sv) => ({ params: { slug: sv.slug }, props: { sv, others: services.filter((o) => o.id !== sv.id) } }));
+}
+const { sv, others } = Astro.props;
+const title = sv.seo_title || `${sv.title} | Right Standard Contracting Company`;
+const description = sv.seo_description || plain(sv.body).slice(0, 155);
+const gallery = await Promise.all(sv.gallery.map(async (g) => ({
+  thumb: g, full: (await getImage({ src: fileUrl(sv, g), inferSize: true, width: 1400, format: "webp" })).src,
+})));
+---
+<Layout title={title} description={description} image={fileUrl(sv, sv.image)} jsonld={[{
+  "@context": "https://schema.org", "@type": "Service", name: sv.title, description,
+  provider: { "@id": Astro.site + "#org" }, areaServed: { "@type": "Country", name: "Saudi Arabia" },
+  url: new URL(Astro.url.pathname, Astro.site).href,
+}]}>
+  <PageBanner title={sv.title} crumbs={[["Services", "/services/"]]} />
+  <section class="section">
+    <div class="container svc-detail">
+      <article>
+        <figure class="svc-hero">
+          <Image src={fileUrl(sv, sv.image)} alt={sv.title} inferSize width={1200} height={460} fit="cover" widths={[600, 900, 1200]} sizes="(min-width: 1000px) 66vw, 100vw" loading="eager" />
+          <figcaption>{sv.title}</figcaption>
+        </figure>
+        <div class="prose" set:html={sv.body} />
+        {gallery.length > 0 && (
+          <ul class="gallery">
+            {gallery.map((g, i) => (
+              <li><a href={g.full} target="_blank" rel="noopener"><Image src={fileUrl(sv, g.thumb)} alt={`${sv.title} work by Right Standard, photo ${i + 1}`} inferSize width={300} height={350} fit="cover" widths={[300, 600]} sizes="300px" /></a></li>
+            ))}
+          </ul>
+        )}
+      </article>
+      <aside class="svc-aside">
+        <h2>Our Services</h2>
+        <ul>{others.map((o) => <li><a href={`/service/${o.slug}/`}>{o.title}</a></li>)}</ul>
+        <a class="btn" href="/contact/">Request a Quote</a>
+      </aside>
+    </div>
+  </section>
+</Layout>

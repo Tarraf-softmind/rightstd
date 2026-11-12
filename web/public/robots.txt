@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /_/
+Disallow: /api/
+Allow: /api/files/
+
+Sitemap: https://www.rightstd.com/sitemap-index.xml

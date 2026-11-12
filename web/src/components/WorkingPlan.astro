@@ -1,0 +1,26 @@
+---
+import Icon from "./Icon.astro";
+interface Props { plan: { kicker?: string; title: string; steps: { no: string; title: string; icon: string }[] } }
+const { plan } = Astro.props;
+---
+<section class="section plan">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        {plan.kicker && <p class="kicker">{plan.kicker}</p>}
+        <h2>{plan.title}</h2>
+      </div>
+    </div>
+    <div class="plan-track" style={`--n: ${plan.steps.length}`}>
+      <ol class="plan-steps">
+        {plan.steps.map((s, i) => (
+          <li class="plan-step" style={`--i: ${i}`}>
+            <span class="plan-no" aria-hidden="true">{s.no}</span>
+            <span class="plan-icon"><Icon name={s.icon} size={26} /></span>
+            <h3>{s.title}</h3>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>

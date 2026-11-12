@@ -1,0 +1,39 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../components/Layout.astro";
+import PageBanner from "../components/PageBanner.astro";
+import WorkingPlan from "../components/WorkingPlan.astro";
+import Icon from "../components/Icon.astro";
+import { page, list, fileUrl, excerpt } from "../lib/pb.js";
+
+const [p, home, services] = await Promise.all([page("services"), page("home"), list("services")]);
+const d = p.data;
+---
+<Layout title={p.seo_title} description={p.seo_description} image={fileUrl(services[0], services[0].image)}>
+  <PageBanner title={p.title} />
+  <section class="section">
+    <div class="container">
+      <div class="section-head center">
+        <p class="kicker">{d.kicker}</p>
+        <h2>{d.title}</h2>
+      </div>
+      <ul class="svc-grid">
+        {services.map((sv) => (
+          <li class="arch-card">
+            <a href={`/service/${sv.slug}/`}>
+              <Image src={fileUrl(sv, sv.image)} alt={sv.title} inferSize width={240} height={270} fit="cover" widths={[240, 480]} sizes="240px" />
+              <h3>{sv.title}</h3>
+              <p>{excerpt(sv.body, 8)}</p>
+              <span class="arch-badge" aria-hidden="true"><Icon name="star" size={14} /></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="build-cta">
+        <p>{d.cta.text}</p>
+        <a class="btn" href={d.cta.link}>{d.cta.title} <Icon name="arrow" size={16} /></a>
+      </div>
+    </div>
+  </section>
+  <WorkingPlan plan={home.data.plan} />
+</Layout>

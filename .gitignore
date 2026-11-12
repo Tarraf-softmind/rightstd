@@ -1,0 +1,13 @@
+.DS_Store
+__pycache__/
+*.log
+node_modules/
+web/dist/
+web/.astro/
+# raw WP export: big + contains user password hashes
+wp-export/
+scripts/wp.json
+# PocketBase: binary, live DB, built site
+pocketbase/pocketbase
+pocketbase/pb_data/
+pocketbase/pb_public/

@@ -1,0 +1,113 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../components/Layout.astro";
+import Icon from "../components/Icon.astro";
+import WorkingPlan from "../components/WorkingPlan.astro";
+import { page, list, settings, fileUrl, excerpt } from "../lib/pb.js";
+
+const p = await page("home");
+const d = p.data;
+const [services, clients, showcase, s] = await Promise.all([list("services"), list("clients"), list("showcase"), settings()]);
+const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
+---
+<Layout title={p.seo_title || s.site_name} description={p.seo_description} image={fileUrl(p, p.hero_image)}>
+  <section class="hero">
+    <Image class="hero-bg" src={fileUrl(p, p.hero_image)} alt="" inferSize widths={[640, 960, 1440, 1920]} sizes="100vw" quality={60} loading="eager" fetchpriority="high" />
+    <div class="container hero-inner">
+      <h1><span class="sr-only">Right Standard </span><span class="hero-line">{d.hero.title1}</span> <span class="hero-line">{d.hero.title2}</span></h1>
+      <span class="level-line" aria-hidden="true"></span>
+      <div class="hero-foot">
+        <p class="hero-text"><strong>{d.hero.kicker}</strong> {d.hero.text}</p>
+        <a class="btn" href={d.hero.link}>{d.hero.button}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container intro">
+      <Image class="intro-img rise" src={fileUrl(p, p.image)} alt="Right Standard engineers on a construction site" inferSize widths={[480, 720, 960]} sizes="(min-width: 900px) 45vw, 100vw" />
+      <div>
+        <p class="kicker">{d.intro.kicker}</p>
+        <h2>{d.intro.title}</h2>
+        <p>{d.intro.text}</p>
+        <ul class="checks">{d.intro.features.map((f) => <li><Icon name="check" size={18} />{f}</li>)}</ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section services-band" data-carousel>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="kicker">{d.services.kicker}</p>
+          <h2>{d.services.title}</h2>
+        </div>
+        <div class="head-actions">
+          <a class="head-link" href="/services/">View all services <Icon name="arrow" size={16} /></a>
+          <button class="carousel-btn" data-dir="-1" aria-label="Previous services"><Icon name="arrow-left" /></button>
+          <button class="carousel-btn" data-dir="1" aria-label="Next services"><Icon name="arrow" /></button>
+        </div>
+      </div>
+      <ul class="track" data-track>
+        {services.map((sv) => (
+          <li class="svc-card">
+            <a href={`/service/${sv.slug}/`}>
+              <span class="frame"><Image class="svc-img" style={`view-transition-name: svc-${sv.slug}`} src={fileUrl(sv, sv.image)} alt={sv.title} inferSize width={360} height={450} fit="cover" widths={[280, 360, 560]} sizes="280px" /></span>
+              <h3>{sv.title}</h3>
+              <p>{excerpt(sv.body, 12)}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta">
+    <Image class="cta-bg" src={fileUrl(p, p.image2)} alt="" inferSize widths={[768, 1440, 1920]} sizes="100vw" />
+    <div class="container cta-inner">
+      <h2><span>{d.cta.outline}</span> {d.cta.title}</h2>
+      <a class="btn" href={d.cta.link}>{d.cta.button}</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head"><h2>{d.clients.title}</h2></div>
+      <ul class="clients">
+        {clients.map((c, i) => {
+          const img = <Image src={fileUrl(c, c.logo)} alt={c.name || `Client ${i + 1} logo`} inferSize height={80} width={180} fit="contain" />;
+          return <li>{c.url ? <a href={c.url} target="_blank" rel="noopener">{img}</a> : img}</li>;
+        })}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section showcase" data-tabs>
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="kicker">{d.showcase.kicker}</p>
+          <h2>{d.showcase.title}</h2>
+        </div>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Our fields">
+        {showcase.map((t, i) => <button role="tab" id={`tab-${t.id}`} aria-controls={`panel-${t.id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>{t.title}</button>)}
+      </div>
+    </div>
+    <div class="showcase-band">
+      {showcase.map((t, i) => (
+        <div class="container showcase-panel" role="tabpanel" id={`panel-${t.id}`} aria-labelledby={`tab-${t.id}`} hidden={i !== 0}>
+          {t.images.map((img, j) => (
+            <Image class={`arch arch-${j + 1}`} src={fileUrl(t, img)} alt={`${t.title} project by Right Standard`} inferSize width={420} height={520} fit="cover" widths={[320, 420, 640]} sizes="(min-width: 900px) 30vw, 45vw" />
+          ))}
+          <div class="showcase-actions">
+            <a class="call-card" href={tel}><span class="call-icon"><Icon name="phone" size={20} /></span><span><small>Call us</small>{s.phone}</span></a>
+            <a class="btn" href="/contact/">More Explore</a>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <WorkingPlan plan={d.plan} />
+</Layout>

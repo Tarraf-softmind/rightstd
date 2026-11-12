@@ -1,0 +1,28 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../components/Layout.astro";
+import PageBanner from "../components/PageBanner.astro";
+import { page, fileUrl } from "../lib/pb.js";
+
+const p = await page("about");
+const d = p.data;
+---
+<Layout title={p.seo_title || "About Us | Right Standard Contracting Company"} description={p.seo_description} image={fileUrl(p, p.image)}>
+  <PageBanner title={p.title} />
+  <section class="section">
+    <div class="container about">
+      <div>
+        <p class="kicker">{d.kicker}</p>
+        <h2>{d.title}</h2>
+        <div class="prose" set:html={p.body} />
+        <div class="about-tabs" data-tabs>
+          <div class="tabs tabs-left" role="tablist" aria-label="Mission, vision and values">
+            {d.tabs.map((t, i) => <button role="tab" id={`atab-${i}`} aria-controls={`apanel-${i}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1}>{t.title}</button>)}
+          </div>
+          {d.tabs.map((t, i) => <div class="tab-panel prose" role="tabpanel" id={`apanel-${i}`} aria-labelledby={`atab-${i}`} hidden={i !== 0} set:html={t.html} />)}
+        </div>
+      </div>
+      <Image class="founder" src={fileUrl(p, p.image)} alt="Engr. Abdallah Nazir Halawani, Founder & CEO" inferSize widths={[400, 600, 880]} sizes="(min-width: 900px) 40vw, 100vw" />
+    </div>
+  </section>
+</Layout>

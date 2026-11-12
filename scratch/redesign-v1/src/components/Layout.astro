@@ -1,0 +1,153 @@
+---
+import "../styles/global.css";
+import Icon from "./Icon.astro";
+import { settings as getSettings, publicFile } from "../lib/pb.js";
+import { getImage, Font } from "astro:assets";
+
+interface Props {
+  title: string;              // full <title>
+  description: string;
+  image?: string | null;      // absolute PocketBase URL for og:image
+  jsonld?: object[];
+  noindex?: boolean;      // 404 page
+}
+const { title, description, image, jsonld = [], noindex = false } = Astro.props;
+const s = await getSettings();
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const og = image ? new URL((await getImage({ src: image, width: 1200, inferSize: true, format: "jpeg" })).src, Astro.site).href : null;
+const logo = publicFile(s, s.logo);
+const logoWhite = publicFile(s, s.logo_white);
+const pdf = publicFile(s, s.profile_pdf);
+const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
+const nav = [["Home", "/"], ["About", "/about/"], ["Services", "/services/"], ["Contact", "/contact/"]];
+const here = (href: string) => (href === "/" ? Astro.url.pathname === "/" : Astro.url.pathname.startsWith(href));
+const socials = [["x", s.x_url, "X (Twitter)"], ["linkedin", s.linkedin_url, "LinkedIn"], ["instagram", s.instagram_url, "Instagram"], ["whatsapp", s.whatsapp_url, "WhatsApp"]].filter(([, u]) => u);
+
+const org = {
+  "@context": "https://schema.org", "@type": "GeneralContractor", "@id": Astro.site + "#org",
+  name: s.site_name, alternateName: s.short_name, url: Astro.site?.href, logo: new URL(logo, Astro.site).href,
+  telephone: s.phone, email: s.email, slogan: s.tagline,
+  address: { "@type": "PostalAddress", addressCountry: "SA" }, areaServed: { "@type": "Country", name: "Saudi Arabia" },
+  sameAs: socials.filter(([n]) => n !== "whatsapp").map(([, u]) => u),
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+  <link rel="icon" href={publicFile(s, s.favicon)} />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={s.site_name} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:locale" content="en_US" />
+  {og && <meta property="og:image" content={og} />}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@RightSTD" />
+  <Font cssVariable="--font-archivo" preload />
+  <script type="application/ld+json" set:html={JSON.stringify([org, ...jsonld])} />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/" aria-label={s.site_name + " home"}><img src={logo} alt={s.site_name} width="150" height="80" /></a>
+      <div class="header-main">
+        <div class="topbar">
+          <span><Icon name="bolt" size={14} /> {s.tagline}</span>
+          <span class="topbar-right">
+            <span><Icon name="pin" size={14} /> {s.location}</span>
+            <a href={"mailto:" + s.email}><Icon name="mail" size={14} /> {s.email}</a>
+          </span>
+        </div>
+        <div class="navbar">
+          <nav aria-label="Main">
+            <ul>{nav.map(([label, href]) => <li><a href={href} aria-current={here(href) ? "page" : undefined}>{label}</a></li>)}</ul>
+          </nav>
+          <a class="profile-btn" href={pdf} target="_blank" rel="noopener">Download Our Profile <Icon name="chevrons" size={16} /></a>
+          <details class="mobile-nav">
+            <summary aria-label="Menu"><Icon name="menu" size={24} /></summary>
+            <ul>
+              {nav.map(([label, href]) => <li><a href={href}>{label}</a></li>)}
+              <li><a href={pdf} target="_blank" rel="noopener">Download Our Profile</a></li>
+              <li><a href={tel}>{s.phone}</a></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main"><slot /></main>
+
+  <section class="call-band">
+    <div class="container call-inner">
+      <div>
+        <p class="call-kicker">Give us a call</p>
+        <a class="call-phone" href={tel}>{s.phone}</a>
+      </div>
+      <a class="btn btn-light" href="/contact/">Contact Us <Icon name="arrow" size={16} /></a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <img src={logoWhite} alt={s.site_name} width="110" height="100" loading="lazy" />
+        <p>{s.tagline}</p>
+      </div>
+      <div>
+        <h2 class="footer-title">Resources</h2>
+        <ul>{nav.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
+      </div>
+      <div>
+        <h2 class="footer-title">Reach Us</h2>
+        <ul class="footer-contact">
+          <li><a href={tel}><Icon name="phone" size={15} /> {s.phone}</a></li>
+          <li><a href={"mailto:" + s.email}><Icon name="mail" size={15} /> {s.email}</a></li>
+          <li><Icon name="pin" size={15} /> {s.location}</li>
+        </ul>
+        <ul class="socials">
+          {socials.map(([icon, href, label]) => <li><a href={href} target="_blank" rel="noopener" aria-label={label}><Icon name={icon} size={18} /></a></li>)}
+        </ul>
+      </div>
+    </div>
+    <p class="copyright">© {new Date().getFullYear()} {s.site_name}. All rights reserved.</p>
+  </footer>
+
+  {s.whatsapp_url && <a class="wa-float" href={s.whatsapp_url} target="_blank" rel="noopener" aria-label="Chat on WhatsApp"><Icon name="whatsapp" size={26} /></a>}
+
+  <script>
+    // Tabs: [data-tabs] > [role=tab][aria-controls] + [role=tabpanel]; all panels stay in the HTML for SEO.
+    document.querySelectorAll("[data-tabs]").forEach((root) => {
+      const tabs = [...root.querySelectorAll('[role="tab"]')];
+      const show = (t) => tabs.forEach((x) => {
+        const on = x === t;
+        x.setAttribute("aria-selected", String(on));
+        x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+      });
+      tabs.forEach((t, i) => {
+        t.addEventListener("click", () => show(t));
+        t.addEventListener("keydown", (e) => {
+          const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+          if (d) { const n = tabs[(i + d + tabs.length) % tabs.length]; show(n); n.focus(); }
+        });
+      });
+    });
+    // Carousels: arrow buttons scroll the [data-track] by one card.
+    document.querySelectorAll("[data-carousel]").forEach((root) => {
+      const track = root.querySelector("[data-track]");
+      root.querySelectorAll("[data-dir]").forEach((b) => b.addEventListener("click", () => {
+        const card = track.firstElementChild;
+        track.scrollBy({ left: Number(b.dataset.dir) * (card ? card.getBoundingClientRect().width + 24 : 300), behavior: "smooth" });
+      }));
+    });
+  </script>
+</body>
+</html>

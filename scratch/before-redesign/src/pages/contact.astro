@@ -1,0 +1,67 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../components/Layout.astro";
+import PageBanner from "../components/PageBanner.astro";
+import Icon from "../components/Icon.astro";
+import { page, settings, fileUrl } from "../lib/pb.js";
+
+const [p, s] = await Promise.all([page("contact"), settings()]);
+const d = p.data;
+const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
+---
+<Layout title={p.seo_title} description={p.seo_description} image={fileUrl(p, p.image)}>
+  <PageBanner title={p.title} />
+  <section class="section">
+    <div class="container contact">
+      <div class="contact-photo"><Image src={fileUrl(p, p.image)} alt="Right Standard engineer on a call" inferSize widths={[400, 640]} sizes="(min-width: 900px) 40vw, 100vw" /></div>
+      <div>
+        <p class="kicker">{d.kicker}</p>
+        <h2>{d.title}</h2>
+        <form class="form-card" id="contact-form" method="post" action="/api/collections/messages/records">
+          <h3>{d.form_title}</h3>
+          <div class="form-grid">
+            <label>First name<input name="first_name" autocomplete="given-name" required maxlength="100" /></label>
+            <label>Last name<input name="last_name" autocomplete="family-name" required maxlength="100" /></label>
+            <label class="full">Email address<input name="email" type="email" autocomplete="email" required /></label>
+            <label class="full">Your message<textarea name="message" rows="6" required maxlength="5000"></textarea></label>
+            <label class="hp" aria-hidden="true">Website<input name="website" tabindex="-1" autocomplete="off" /></label>
+          </div>
+          <button class="btn" type="submit">Send Message</button>
+          <p class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+  <section class="contact-info-wrap">
+    <iframe class="map" src={d.map_src} title="Map: Saudi Arabia" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="contact-info">
+      <Image class="contact-info-bg" src={fileUrl(p, p.image2)} alt="" inferSize widths={[640, 960]} sizes="50vw" />
+      <h2>{d.info_title}</h2>
+      <ul>
+        <li><span class="ci-icon"><Icon name="pin" /></span><span><strong>Office Address</strong>{s.location}</span></li>
+        <li><span class="ci-icon"><Icon name="phone" /></span><span><strong>Phone Number</strong><a href={tel}>{s.phone}</a></span></li>
+        <li><span class="ci-icon"><Icon name="mail" /></span><span><strong>Mail Address</strong><a href={"mailto:" + s.email}>{s.email}</a></span></li>
+      </ul>
+    </div>
+  </section>
+  <script>
+    const form = document.getElementById("contact-form");
+    const status = form.querySelector(".form-status");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector("button");
+      btn.disabled = true;
+      status.textContent = "Sending…";
+      try {
+        const res = await fetch(form.action, { method: "POST", body: new FormData(form) });
+        if (!res.ok) throw new Error();
+        form.reset();
+        status.textContent = "Thank you for your message. We will get back to you soon.";
+      } catch {
+        status.textContent = "Sorry, your message could not be sent. Please call or email us instead.";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</Layout>
