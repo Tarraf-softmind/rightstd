@@ -31,7 +31,28 @@ python3 -I scripts/build-seed.py scripts/wp.json wp-export/uploads scripts/seed.
 cd pocketbase && rm -rf pb_data && ./pocketbase migrate up
 ```
 
+## Move to another PC
+GitHub holds the code only. These stay on this machine because they're gitignored, so copy them yourself (USB, Drive, etc.):
+
+| What | Why | How |
+|---|---|---|
+| `pocketbase/pb_data/` (~80 MB) | all content + images | **required**: zip it with the server stopped |
+| `pocketbase/pocketbase` | the binary | download PocketBase **0.40.6** for the new OS from github.com/pocketbase/pocketbase/releases and put it in `pocketbase/` |
+| `wp-export/` (~540 MB) | WP re-import only | skip unless you plan to re-import |
+
+You can't rebuild `pb_data` from the repo on another machine: `scripts/seed.json` points at image paths on the original PC.
+
+```sh
+git clone git@github.com:Tarraf-softmind/rightstd.git && cd rightstd
+# unzip pb_data into pocketbase/pb_data, drop the binary into pocketbase/
+cd web && npm install && cd ../pocketbase
+./pocketbase serve --indexFallback=false   # then ../scripts/rebuild.sh in another terminal
+```
+Your admin login lives in `pb_data`, so it comes along. Install the `pbc` CLI on the new PC and run `pbc login` to deploy from there.
+
 ## Deploy (PocketBase Cloud)
+Deploys go straight from your PC to PocketBase Cloud with the `pbc` CLI. GitHub has no part in them (see the warning below).
+
 `pocketbase/pbc.json` pins PocketBase 0.40.6. The first time, create the instance from a backup of the local `pb_data` (content + images); after that, ship code and the built site with one command:
 ```sh
 pbc login
