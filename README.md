@@ -59,8 +59,9 @@ pbc login
 # first time only: backup zip of pb_data (server stopped, without backups/), then
 cd pocketbase && pbc pocketbase create <name> --backup ../backup.zip
 # every update (edit content locally or in the admin, then):
-../scripts/rebuild.sh && pbc pocketbase deploy
+SITE_URL=https://megln4gobkw6myx.pwz5.pocketbasecloud.com ../scripts/rebuild.sh && pbc pocketbase deploy
 ```
+`SITE_URL` must be the host people actually open: link-preview images (`og:image`) and canonical URLs are absolute, so building for `www.rightstd.com` while it still serves the old site gives previews with no image. Drop `SITE_URL` once DNS for www.rightstd.com points at the instance.
 There is no Node or rsync on the instance, so saving content in its admin does **not** rebuild the site; rebuild and redeploy as above. Do not connect the GitHub repo for push deploys: `pb_public/` is gitignored and a deploy replaces it wholesale, which would publish an empty site.
 
 ## Deploy (VPS)

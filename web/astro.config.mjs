@@ -4,7 +4,7 @@ import sitemap from "@astrojs/sitemap";
 const pb = new URL(process.env.PB_URL || "http://127.0.0.1:8090");
 
 export default defineConfig({
-  site: "https://www.rightstd.com",
+  site: process.env.SITE_URL || "https://www.rightstd.com", // set SITE_URL when serving from another host (og:image/canonical are absolute)
   trailingSlash: "always", // same URLs as the old WordPress site
   build: { format: "directory" },
   integrations: [sitemap()],
