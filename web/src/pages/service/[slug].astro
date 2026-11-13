@@ -2,44 +2,51 @@
 import { Image, getImage } from "astro:assets";
 import Layout from "../../components/Layout.astro";
 import PageBanner from "../../components/PageBanner.astro";
-import { list, fileUrl, plain } from "../../lib/pb.js";
+import { list, fileUrl, plain, tr } from "../../lib/pb.js";
+import { langOf, ui, href } from "../../lib/i18n.js";
 
 export async function getStaticPaths() {
   const services = await list("services");
   return services.map((sv) => ({ params: { slug: sv.slug }, props: { sv, others: services.filter((o) => o.id !== sv.id) } }));
 }
+const lang = langOf(Astro.url);
+const t = ui[lang];
 const { sv, others } = Astro.props;
-const title = sv.seo_title || `${sv.title} | Right Standard Contracting Company`;
-const description = sv.seo_description || plain(sv.body).slice(0, 155);
+const name = tr(sv, "title", lang);
+const body = tr(sv, "body", lang);
+// SEO fields only count in their own language; otherwise derive them from this language's title/body
+const seo = (f) => (lang === "ar" ? sv[f + "_ar"] : sv[f]);
+const title = seo("seo_title") || `${name} | ${t.titleSuffix}`;
+const description = seo("seo_description") || plain(body).slice(0, 155);
 const gallery = await Promise.all(sv.gallery.map(async (g) => ({
   thumb: g, full: (await getImage({ src: fileUrl(sv, g), inferSize: true, width: 1400, format: "webp" })).src,
 })));
 ---
 <Layout title={title} description={description} jsonld={[{
-  "@context": "https://schema.org", "@type": "Service", name: sv.title, description,
+  "@context": "https://schema.org", "@type": "Service", name, description, inLanguage: lang,
   provider: { "@id": Astro.site + "#org" }, areaServed: { "@type": "Country", name: "Saudi Arabia" },
   url: new URL(Astro.url.pathname, Astro.site).href,
 }]}>
-  <PageBanner title={sv.title} crumbs={[["Services", "/services/"]]} />
+  <PageBanner title={name} crumbs={[[t.services, href(lang, "/services/")]]} />
   <section class="section">
     <div class="container svc-detail">
       <article>
         <figure class="svc-hero">
-          <Image class="svc-img" style={`view-transition-name: svc-${sv.slug}`} src={fileUrl(sv, sv.image)} alt={sv.title} inferSize width={1200} height={460} fit="cover" widths={[600, 900, 1200]} sizes="(min-width: 1000px) 66vw, 100vw" loading="eager" />
+          <Image class="svc-img" style={`view-transition-name: svc-${sv.slug}`} src={fileUrl(sv, sv.image)} alt={name} inferSize width={1200} height={460} fit="cover" widths={[600, 900, 1200]} sizes="(min-width: 1000px) 66vw, 100vw" loading="eager" />
         </figure>
-        <div class="prose" set:html={sv.body} />
+        <div class="prose" set:html={body} />
         {gallery.length > 0 && (
           <ul class="gallery">
             {gallery.map((g, i) => (
-              <li><a href={g.full} target="_blank" rel="noopener"><Image src={fileUrl(sv, g.thumb)} alt={`${sv.title} work by Right Standard, photo ${i + 1}`} inferSize width={300} height={350} fit="cover" widths={[300, 600]} sizes="300px" /></a></li>
+              <li><a href={g.full} target="_blank" rel="noopener"><Image src={fileUrl(sv, g.thumb)} alt={t.photo(name, i + 1)} inferSize width={300} height={350} fit="cover" widths={[300, 600]} sizes="300px" /></a></li>
             ))}
           </ul>
         )}
       </article>
       <aside class="svc-aside">
-        <h2>Our Services</h2>
-        <ul>{others.map((o) => <li><a href={`/service/${o.slug}/`}>{o.title}</a></li>)}</ul>
-        <a class="btn" href="/contact/">Request a Quote</a>
+        <h2>{t.ourServices}</h2>
+        <ul>{others.map((o) => <li><a href={href(lang, `/service/${o.slug}/`)}>{tr(o, "title", lang)}</a></li>)}</ul>
+        <a class="btn" href={href(lang, "/contact/")}>{t.quote}</a>
       </aside>
     </div>
   </section>

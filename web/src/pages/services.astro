@@ -4,13 +4,15 @@ import Layout from "../components/Layout.astro";
 import PageBanner from "../components/PageBanner.astro";
 import WorkingPlan from "../components/WorkingPlan.astro";
 import Icon from "../components/Icon.astro";
-import { page, list, fileUrl, excerpt } from "../lib/pb.js";
+import { page, list, fileUrl, excerpt, tr, trData } from "../lib/pb.js";
+import { langOf, href } from "../lib/i18n.js";
 
+const lang = langOf(Astro.url);
 const [p, home, services] = await Promise.all([page("services"), page("home"), list("services")]);
-const d = p.data;
+const d = trData(p, lang);
 ---
-<Layout title={p.seo_title} description={p.seo_description}>
-  <PageBanner title={p.title} />
+<Layout title={tr(p, "seo_title", lang)} description={tr(p, "seo_description", lang)}>
+  <PageBanner title={tr(p, "title", lang)} />
   <section class="section">
     <div class="container">
       <div class="section-head">
@@ -22,19 +24,19 @@ const d = p.data;
       <ul class="svc-grid">
         {services.map((sv) => (
           <li class="svc-card">
-            <a href={`/service/${sv.slug}/`}>
-              <span class="frame"><Image class="svc-img" style={`view-transition-name: svc-${sv.slug}`} src={fileUrl(sv, sv.image)} alt={sv.title} inferSize width={400} height={500} fit="cover" widths={[320, 400, 640]} sizes="(min-width: 900px) 380px, (min-width: 560px) 45vw, 90vw" /></span>
-              <h3>{sv.title}</h3>
-              <p>{excerpt(sv.body, 14)}</p>
+            <a href={href(lang, `/service/${sv.slug}/`)}>
+              <span class="frame"><Image class="svc-img" style={`view-transition-name: svc-${sv.slug}`} src={fileUrl(sv, sv.image)} alt={tr(sv, "title", lang)} inferSize width={400} height={500} fit="cover" widths={[320, 400, 640]} sizes="(min-width: 900px) 380px, (min-width: 560px) 45vw, 90vw" /></span>
+              <h3>{tr(sv, "title", lang)}</h3>
+              <p>{excerpt(tr(sv, "body", lang), 14)}</p>
             </a>
           </li>
         ))}
       </ul>
       <div class="build-cta">
         <p>{d.cta.text}</p>
-        <a class="btn" href={d.cta.link}>{d.cta.title} <Icon name="arrow" size={16} /></a>
+        <a class="btn" href={href(lang, d.cta.link)}>{d.cta.title} <Icon name="arrow" size={16} /></a>
       </div>
     </div>
   </section>
-  <WorkingPlan plan={home.data.plan} />
+  <WorkingPlan plan={trData(home, lang).plan} />
 </Layout>

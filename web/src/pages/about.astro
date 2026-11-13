@@ -2,30 +2,33 @@
 import { Image } from "astro:assets";
 import Layout from "../components/Layout.astro";
 import PageBanner from "../components/PageBanner.astro";
-import { page, fileUrl } from "../lib/pb.js";
+import { page, fileUrl, tr, trData } from "../lib/pb.js";
+import { langOf, ui } from "../lib/i18n.js";
 
+const lang = langOf(Astro.url);
+const t = ui[lang];
 const p = await page("about");
-const d = p.data;
+const d = trData(p, lang);
 ---
-<Layout title={p.seo_title || "About Us | Right Standard Contracting Company"} description={p.seo_description}>
-  <PageBanner title={p.title} />
+<Layout title={tr(p, "seo_title", lang) || `${tr(p, "title", lang)} | ${t.titleSuffix}`} description={tr(p, "seo_description", lang)}>
+  <PageBanner title={tr(p, "title", lang)} />
   <section class="section">
     <div class="container about">
       <div>
         <p class="kicker">{d.kicker}</p>
         <h2>{d.title}</h2>
-        <div class="prose letter" set:html={p.body} />
+        <div class="prose letter" set:html={tr(p, "body", lang)} />
       </div>
       <figure class="founder">
-        <div class="founder-arch"><Image src={fileUrl(p, p.image)} alt="Engr. Abdallah Nazir Halawani, Founder & CEO" inferSize widths={[400, 600, 880]} sizes="(min-width: 900px) 40vw, 100vw" loading="eager" /></div>
-        <figcaption><strong>Engr. Abdallah Nazir Halawani</strong> Founder &amp; CEO</figcaption>
+        <div class="founder-arch"><Image src={fileUrl(p, p.image)} alt={t.founderAlt} inferSize widths={[400, 600, 880]} sizes="(min-width: 900px) 40vw, 100vw" loading="eager" /></div>
+        <figcaption><strong>{t.founderName}</strong> {t.founderRole}</figcaption>
       </figure>
     </div>
   </section>
   <section class="section mist">
     <div class="container">
       <ul class="pillars">
-        {d.tabs.map((t) => <li class="pillar"><h2>{t.title}</h2><div class="prose" set:html={t.html} /></li>)}
+        {d.tabs.map((x) => <li class="pillar"><h2>{x.title}</h2><div class="prose" set:html={x.html} /></li>)}
       </ul>
     </div>
   </section>

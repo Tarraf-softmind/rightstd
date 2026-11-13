@@ -2,16 +2,18 @@
 import { Image } from "astro:assets";
 import Icon from "./Icon.astro";
 import { settings, fileUrl } from "../lib/pb.js";
+import { ui, href, langOf } from "../lib/i18n.js";
 
 interface Props { title: string; crumbs?: [string, string][] }
 const { title, crumbs = [] } = Astro.props;
+const lang = langOf(Astro.url);
 const s = await settings();
-const trail: [string, string][] = [["Home", "/"], ...crumbs, [title, Astro.url.pathname]];
+const trail: [string, string][] = [[ui[lang].home, href(lang, "/")], ...crumbs, [title, Astro.url.pathname]];
 ---
 <section class="banner">
   <Image class="banner-bg" src={fileUrl(s, s.banner_image)} alt="" inferSize widths={[640, 960, 1440, 1920]} sizes="100vw" quality={55} loading="eager" fetchpriority="high" />
   <div class="container banner-inner">
-    <nav aria-label="Breadcrumb">
+    <nav aria-label={ui[lang].breadcrumb}>
       <ol class="crumbs">
         {trail.map(([label, href], i) => i < trail.length - 1
           ? <li><a href={href}>{label}</a><Icon name="chevrons" size={14} /></li>
