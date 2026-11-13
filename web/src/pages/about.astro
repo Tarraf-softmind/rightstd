@@ -10,7 +10,7 @@ const t = ui[lang];
 const p = await page("about");
 const d = trData(p, lang);
 ---
-<Layout title={tr(p, "seo_title", lang) || `${tr(p, "title", lang)} | ${t.titleSuffix}`} description={tr(p, "seo_description", lang)} image={fileUrl(p, p.image)}>
+<Layout title={tr(p, "seo_title", lang) || `${tr(p, "title", lang)} | ${t.titleSuffix}`} description={tr(p, "seo_description", lang)}>
   <PageBanner title={tr(p, "title", lang)} />
   <section class="section">
     <div class="container about">

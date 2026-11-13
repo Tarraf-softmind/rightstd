@@ -12,7 +12,7 @@ const [p, s] = await Promise.all([page("contact"), settings()]);
 const d = trData(p, lang);
 const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
 ---
-<Layout title={tr(p, "seo_title", lang)} description={tr(p, "seo_description", lang)} image={fileUrl(p, p.image)}>
+<Layout title={tr(p, "seo_title", lang)} description={tr(p, "seo_description", lang)}>
   <PageBanner title={tr(p, "title", lang)} />
   <section class="section mist">
     <div class="container contact">

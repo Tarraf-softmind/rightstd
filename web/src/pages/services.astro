@@ -11,7 +11,7 @@ const lang = langOf(Astro.url);
 const [p, home, services] = await Promise.all([page("services"), page("home"), list("services")]);
 const d = trData(p, lang);
 ---
-<Layout title={tr(p, "seo_title", lang)} description={tr(p, "seo_description", lang)} image={fileUrl(services[0], services[0].image)}>
+<Layout title={tr(p, "seo_title", lang)} description={tr(p, "seo_description", lang)}>
   <PageBanner title={tr(p, "title", lang)} />
   <section class="section">
     <div class="container">
