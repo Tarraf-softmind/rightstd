@@ -7,7 +7,7 @@ import { page, fileUrl } from "../lib/pb.js";
 const p = await page("about");
 const d = p.data;
 ---
-<Layout title={p.seo_title || "About Us | Right Standard Contracting Company"} description={p.seo_description} image={fileUrl(p, p.image)}>
+<Layout title={p.seo_title || "About Us | Right Standard Contracting Company"} description={p.seo_description}>
   <PageBanner title={p.title} />
   <section class="section">
     <div class="container about">

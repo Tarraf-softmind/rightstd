@@ -24,8 +24,10 @@ onRecordCreateRequest((e) => {
 
 // Rebuild the static site whenever content changes (runs in the background, debounced by the script).
 const rebuild = (e) => {
-  $os.cmd("sh", "-c", `nohup "${__hooks}/../../scripts/rebuild.sh" >> "${__hooks}/../build.log" 2>&1 &`).start()
   e.next()
+  try {
+    $os.cmd("sh", "-c", `nohup "${__hooks}/../../scripts/rebuild.sh" >> "${__hooks}/../build.log" 2>&1 &`).start()
+  } catch (_) {} // PocketBase Cloud has no scripts/, node or rsync: saving still works, redeploy with pbc instead
 }
 onRecordAfterCreateSuccess(rebuild, "settings", "pages", "services", "clients", "showcase")
 onRecordAfterUpdateSuccess(rebuild, "settings", "pages", "services", "clients", "showcase")

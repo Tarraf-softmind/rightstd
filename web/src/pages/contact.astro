@@ -9,7 +9,7 @@ const [p, s] = await Promise.all([page("contact"), settings()]);
 const d = p.data;
 const tel = "tel:" + s.phone.replace(/[^+\d]/g, "");
 ---
-<Layout title={p.seo_title} description={p.seo_description} image={fileUrl(p, p.image)}>
+<Layout title={p.seo_title} description={p.seo_description}>
   <PageBanner title={p.title} />
   <section class="section mist">
     <div class="container contact">
