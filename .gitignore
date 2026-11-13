@@ -9,5 +9,9 @@ wp-export/
 scripts/wp.json
 # PocketBase: binary, live DB, built site
 pocketbase/pocketbase
-pocketbase/pb_data/
 pocketbase/pb_public/
+# pb_data: commit the DB + uploaded files so another machine opens with the same content.
+# Repo must stay PRIVATE: data.db holds admin password hashes.
+pocketbase/pb_data/*
+!pocketbase/pb_data/data.db
+!pocketbase/pb_data/storage/

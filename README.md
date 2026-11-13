@@ -33,19 +33,18 @@ cd pocketbase && rm -rf pb_data && ./pocketbase migrate up
 ```
 
 ## Move to another PC
-GitHub holds the code only. These stay on this machine because they're gitignored, so copy them yourself (USB, Drive, etc.):
+GitHub holds the code **and** the content: `pocketbase/pb_data/data.db` + `pb_data/storage/` (images) are committed. Keep the repo **private**: `data.db` holds the admin password hashes. To push content edits, stop PocketBase first, then commit `pocketbase/pb_data`.
+
+Still gitignored, get them yourself:
 
 | What | Why | How |
 |---|---|---|
-| `pocketbase/pb_data/` (~80 MB) | all content + images | **required**: zip it with the server stopped |
-| `pocketbase/pocketbase` | the binary | download PocketBase **0.40.6** for the new OS from github.com/pocketbase/pocketbase/releases and put it in `pocketbase/` |
+| `pocketbase/pocketbase` | the binary (OS-specific) | download PocketBase **0.40.6** for the new OS from github.com/pocketbase/pocketbase/releases and put it in `pocketbase/` |
 | `wp-export/` (~540 MB) | WP re-import only | skip unless you plan to re-import |
-
-You can't rebuild `pb_data` from the repo on another machine: `scripts/seed.json` points at image paths on the original PC.
 
 ```sh
 git clone git@github.com:Tarraf-softmind/rightstd.git && cd rightstd
-# unzip pb_data into pocketbase/pb_data, drop the binary into pocketbase/
+# drop the binary into pocketbase/
 cd web && npm install && cd ../pocketbase
 ./pocketbase serve --indexFallback=false   # then ../scripts/rebuild.sh in another terminal
 ```
@@ -66,6 +65,10 @@ SITE_URL=https://megln4gobkw6myx.pwz5.pocketbasecloud.com ../scripts/rebuild.sh 
 There is no Node or rsync on the instance, so saving content in its admin does **not** rebuild the site; rebuild and redeploy as above. Do not connect the GitHub repo for push deploys: `pb_public/` is gitignored and a deploy replaces it wholesale, which would publish an empty site.
 
 ## Deploy (VPS)
-Copy `pocketbase/` (including `pb_data`), `web/` and `scripts/` to the server, install Node 22 or newer and `rsync`, set `PB_URL=https://www.rightstd.com` in the service environment (the auto-rebuild reads content from it), and run:
+Clone the repo on the server (it brings `pb_data`), download the Linux build of PocketBase 0.40.6 into `pocketbase/` (`uname -m`: `x86_64` → `linux_amd64`, `aarch64` → `linux_arm64`):
+```sh
+cd pocketbase && curl -LO https://github.com/pocketbase/pocketbase/releases/download/v0.40.6/pocketbase_0.40.6_linux_amd64.zip && unzip -o pocketbase_0.40.6_linux_amd64.zip pocketbase && rm pocketbase_0.40.6_linux_amd64.zip
+```
+Install Node 22 or newer and `rsync`, run `npm install` in `web/`, set `PB_URL=https://www.rightstd.com` in the service environment (the auto-rebuild reads content from it), and run:
 `./pocketbase serve rightstd.com www.rightstd.com --indexFallback=false` (it gets HTTPS for both from Let's Encrypt automatically; the bare domain 301s to www). Point DNS for `rightstd.com` and `www` at the server.
 After the switch, submit `https://www.rightstd.com/sitemap-index.xml` in Google Search Console.
